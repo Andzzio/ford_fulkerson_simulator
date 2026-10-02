@@ -1,22 +1,28 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:ford_fulkerson_simulator/config/theme/app_theme.dart';
+import 'package:ford_fulkerson_simulator/presentation/notifiers/graph_state_notifier.dart';
+import 'package:ford_fulkerson_simulator/presentation/painters/edges_painter.dart';
 import 'package:ford_fulkerson_simulator/presentation/painters/viewport_painter.dart';
+import 'package:ford_fulkerson_simulator/presentation/widgets/node_widget.dart';
 
-class GraphViewport extends StatefulWidget {
+class GraphViewport extends ConsumerStatefulWidget {
   const new({super.key});
 
   @override
-  State<GraphViewport> createState() => _GraphViewportState();
+  ConsumerState<GraphViewport> createState() => _GraphViewportState();
 }
 
-class _GraphViewportState extends State<GraphViewport> {
+class _GraphViewportState extends ConsumerState<GraphViewport> {
   late final TransformationController _controller;
   @override
   void initState() {
     super.initState();
     const double initialScale = 1.0;
     _controller = TransformationController(
-      Matrix4.identity()..scaleByDouble(initialScale, initialScale, 1.0, 1.0),
+      Matrix4.identity()
+        ..scaleByDouble(initialScale, initialScale, 1.0, 1.0)
+        ..translateByDouble(-1100.0, -1200.0, 0.0, 1.0),
     );
   }
 
@@ -28,6 +34,7 @@ class _GraphViewportState extends State<GraphViewport> {
 
   @override
   Widget build(BuildContext context) {
+    final graphState = ref.watch(graphStateNotifier);
     return Expanded(
       child: Container(
         decoration: BoxDecoration(
@@ -35,6 +42,7 @@ class _GraphViewportState extends State<GraphViewport> {
           border: Border.all(color: AppTheme.darkBorder, width: 2),
         ),
         child: InteractiveViewer(
+          transformationController: _controller,
           minScale: 0.5,
           maxScale: 3.0,
           constrained: false,
@@ -44,6 +52,18 @@ class _GraphViewportState extends State<GraphViewport> {
             child: Stack(
               children: [
                 Positioned.fill(child: CustomPaint(painter: ViewportPainter())),
+                Positioned.fill(
+                  child: CustomPaint(
+                    painter: EdgesPainter(edges: graphState.edges),
+                  ),
+                ),
+                ...graphState.nodes.map((node) {
+                  return Positioned(
+                    left: node.position.dx - node.radius,
+                    top: node.position.dy - node.radius,
+                    child: NodeWidget(node: node),
+                  );
+                }),
               ],
             ),
           ),
