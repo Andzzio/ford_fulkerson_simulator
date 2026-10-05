@@ -7,25 +7,21 @@ import '../../frb_generated.dart';
 
 import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 
-// These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `assert_fields_are_eq`, `clone`, `eq`, `fmt`
+// These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `assert_fields_are_eq`, `assert_fields_are_eq`, `clone`, `clone`, `eq`, `eq`, `fmt`, `fmt`
 
 class NodeCore {
   final String id;
   final String label;
+  final NodeType nodeType;
 
-  const NodeCore({required this.id, required this.label});
-
-  // HINT: Make it `#[frb(sync)]` to let it become the default constructor of Dart class.
-  static Future<NodeCore> newInstance({
-    required String id,
-    required String label,
-  }) => RustLib.instance.api.crateApiEntitiesNodeCoreNodeCoreNew(
-    id: id,
-    label: label,
-  );
+  const NodeCore({
+    required this.id,
+    required this.label,
+    required this.nodeType,
+  });
 
   @override
-  int get hashCode => id.hashCode ^ label.hashCode;
+  int get hashCode => id.hashCode ^ label.hashCode ^ nodeType.hashCode;
 
   @override
   bool operator ==(Object other) =>
@@ -33,5 +29,8 @@ class NodeCore {
       other is NodeCore &&
           runtimeType == other.runtimeType &&
           id == other.id &&
-          label == other.label;
+          label == other.label &&
+          nodeType == other.nodeType;
 }
+
+enum NodeType { source, sink, intermediate }

@@ -6,7 +6,10 @@
 import 'api/entities/edge_core.dart';
 import 'api/entities/graph_core.dart';
 import 'api/entities/node_core.dart';
+import 'api/ford_fulkerson.dart';
+import 'api/ford_fulkerson_solver.dart';
 import 'api/simple.dart';
+import 'api/simulation_event.dart';
 
 import 'dart:async';
 import 'dart:convert';
@@ -72,7 +75,7 @@ class RustLib extends BaseEntrypoint<RustLibApi, RustLibApiImpl, RustLibWire> {
   String get codegenVersion => '2.13.0';
 
   @override
-  int get rustContentHash => -242102989;
+  int get rustContentHash => -1466662087;
 
   static const kDefaultExternalLibraryLoaderConfig =
       ExternalLibraryLoaderConfig(
@@ -84,6 +87,13 @@ class RustLib extends BaseEntrypoint<RustLibApi, RustLibApiImpl, RustLibWire> {
 }
 
 abstract class RustLibApi extends BaseApi {
+  Future<FordFulkersonSolver>
+  crateApiFordFulkersonSolverFordFulkersonSolverNew({required GraphCore graph});
+
+  Future<SimulationResult> crateApiFordFulkersonSolverFordFulkersonSolverSolve({
+    required FordFulkersonSolver that,
+  });
+
   GraphCore crateApiEntitiesGraphCoreGraphCoreGenerateBlank();
 
   GraphCore crateApiEntitiesGraphCoreGraphCoreGenerateRandom({
@@ -94,9 +104,8 @@ abstract class RustLibApi extends BaseApi {
 
   Future<void> crateApiSimpleInitApp();
 
-  Future<NodeCore> crateApiEntitiesNodeCoreNodeCoreNew({
-    required String id,
-    required String label,
+  SimulationResult crateApiFordFulkersonRunFordFulkerson({
+    required GraphCore graph,
   });
 }
 
@@ -109,12 +118,82 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   });
 
   @override
+  Future<FordFulkersonSolver>
+  crateApiFordFulkersonSolverFordFulkersonSolverNew({
+    required GraphCore graph,
+  }) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          final serializer = SseSerializer(generalizedFrbRustBinding);
+          sse_encode_box_autoadd_graph_core(graph, serializer);
+          pdeCallFfi(
+            generalizedFrbRustBinding,
+            serializer,
+            funcId: 1,
+            port: port_,
+          );
+        },
+        codec: SseCodec(
+          decodeSuccessData: sse_decode_ford_fulkerson_solver,
+          decodeErrorData: null,
+        ),
+        constMeta: kCrateApiFordFulkersonSolverFordFulkersonSolverNewConstMeta,
+        argValues: [graph],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta
+  get kCrateApiFordFulkersonSolverFordFulkersonSolverNewConstMeta =>
+      const TaskConstMeta(
+        debugName: "ford_fulkerson_solver_new",
+        argNames: ["graph"],
+      );
+
+  @override
+  Future<SimulationResult> crateApiFordFulkersonSolverFordFulkersonSolverSolve({
+    required FordFulkersonSolver that,
+  }) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          final serializer = SseSerializer(generalizedFrbRustBinding);
+          sse_encode_box_autoadd_ford_fulkerson_solver(that, serializer);
+          pdeCallFfi(
+            generalizedFrbRustBinding,
+            serializer,
+            funcId: 2,
+            port: port_,
+          );
+        },
+        codec: SseCodec(
+          decodeSuccessData: sse_decode_simulation_result,
+          decodeErrorData: null,
+        ),
+        constMeta:
+            kCrateApiFordFulkersonSolverFordFulkersonSolverSolveConstMeta,
+        argValues: [that],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta
+  get kCrateApiFordFulkersonSolverFordFulkersonSolverSolveConstMeta =>
+      const TaskConstMeta(
+        debugName: "ford_fulkerson_solver_solve",
+        argNames: ["that"],
+      );
+
+  @override
   GraphCore crateApiEntitiesGraphCoreGraphCoreGenerateBlank() {
     return handler.executeSync(
       SyncTask(
         callFfi: () {
           final serializer = SseSerializer(generalizedFrbRustBinding);
-          return pdeCallFfi(generalizedFrbRustBinding, serializer, funcId: 1)!;
+          return pdeCallFfi(generalizedFrbRustBinding, serializer, funcId: 3)!;
         },
         codec: SseCodec(
           decodeSuccessData: sse_decode_graph_core,
@@ -139,7 +218,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
         callFfi: () {
           final serializer = SseSerializer(generalizedFrbRustBinding);
           sse_encode_usize(n, serializer);
-          return pdeCallFfi(generalizedFrbRustBinding, serializer, funcId: 2)!;
+          return pdeCallFfi(generalizedFrbRustBinding, serializer, funcId: 4)!;
         },
         codec: SseCodec(
           decodeSuccessData: sse_decode_graph_core,
@@ -166,7 +245,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
         callFfi: () {
           final serializer = SseSerializer(generalizedFrbRustBinding);
           sse_encode_String(name, serializer);
-          return pdeCallFfi(generalizedFrbRustBinding, serializer, funcId: 3)!;
+          return pdeCallFfi(generalizedFrbRustBinding, serializer, funcId: 5)!;
         },
         codec: SseCodec(
           decodeSuccessData: sse_decode_String,
@@ -191,7 +270,7 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
           pdeCallFfi(
             generalizedFrbRustBinding,
             serializer,
-            funcId: 4,
+            funcId: 6,
             port: port_,
           );
         },
@@ -210,44 +289,48 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
       const TaskConstMeta(debugName: "init_app", argNames: []);
 
   @override
-  Future<NodeCore> crateApiEntitiesNodeCoreNodeCoreNew({
-    required String id,
-    required String label,
+  SimulationResult crateApiFordFulkersonRunFordFulkerson({
+    required GraphCore graph,
   }) {
-    return handler.executeNormal(
-      NormalTask(
-        callFfi: (port_) {
+    return handler.executeSync(
+      SyncTask(
+        callFfi: () {
           final serializer = SseSerializer(generalizedFrbRustBinding);
-          sse_encode_String(id, serializer);
-          sse_encode_String(label, serializer);
-          pdeCallFfi(
-            generalizedFrbRustBinding,
-            serializer,
-            funcId: 5,
-            port: port_,
-          );
+          sse_encode_box_autoadd_graph_core(graph, serializer);
+          return pdeCallFfi(generalizedFrbRustBinding, serializer, funcId: 7)!;
         },
         codec: SseCodec(
-          decodeSuccessData: sse_decode_node_core,
+          decodeSuccessData: sse_decode_simulation_result,
           decodeErrorData: null,
         ),
-        constMeta: kCrateApiEntitiesNodeCoreNodeCoreNewConstMeta,
-        argValues: [id, label],
+        constMeta: kCrateApiFordFulkersonRunFordFulkersonConstMeta,
+        argValues: [graph],
         apiImpl: this,
       ),
     );
   }
 
-  TaskConstMeta get kCrateApiEntitiesNodeCoreNodeCoreNewConstMeta =>
-      const TaskConstMeta(
-        debugName: "node_core_new",
-        argNames: ["id", "label"],
-      );
+  TaskConstMeta get kCrateApiFordFulkersonRunFordFulkersonConstMeta =>
+      const TaskConstMeta(debugName: "run_ford_fulkerson", argNames: ["graph"]);
 
   @protected
   String dco_decode_String(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     return raw as String;
+  }
+
+  @protected
+  FordFulkersonSolver dco_decode_box_autoadd_ford_fulkerson_solver(
+    dynamic raw,
+  ) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return dco_decode_ford_fulkerson_solver(raw);
+  }
+
+  @protected
+  GraphCore dco_decode_box_autoadd_graph_core(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return dco_decode_graph_core(raw);
   }
 
   @protected
@@ -263,6 +346,15 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
       capacity: dco_decode_i_32(arr[3]),
       flow: dco_decode_i_32(arr[4]),
     );
+  }
+
+  @protected
+  FordFulkersonSolver dco_decode_ford_fulkerson_solver(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    final arr = raw as List<dynamic>;
+    if (arr.length != 1)
+      throw Exception('unexpected arr length: expect 1 but see ${arr.length}');
+    return FordFulkersonSolver(graph: dco_decode_graph_core(arr[0]));
   }
 
   @protected
@@ -284,6 +376,12 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
+  List<String> dco_decode_list_String(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return (raw as List<dynamic>).map(dco_decode_String).toList();
+  }
+
+  @protected
   List<EdgeCore> dco_decode_list_edge_core(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     return (raw as List<dynamic>).map(dco_decode_edge_core).toList();
@@ -302,14 +400,79 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
+  List<SimulationEvent> dco_decode_list_simulation_event(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return (raw as List<dynamic>).map(dco_decode_simulation_event).toList();
+  }
+
+  @protected
   NodeCore dco_decode_node_core(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    final arr = raw as List<dynamic>;
+    if (arr.length != 3)
+      throw Exception('unexpected arr length: expect 3 but see ${arr.length}');
+    return NodeCore(
+      id: dco_decode_String(arr[0]),
+      label: dco_decode_String(arr[1]),
+      nodeType: dco_decode_node_type(arr[2]),
+    );
+  }
+
+  @protected
+  NodeType dco_decode_node_type(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return NodeType.values[raw as int];
+  }
+
+  @protected
+  SimulationEvent dco_decode_simulation_event(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    switch (raw[0]) {
+      case 0:
+        return SimulationEvent_InspectNode(
+          nodeId: dco_decode_String(raw[1]),
+          queueNodes: dco_decode_list_String(raw[2]),
+        );
+      case 1:
+        return SimulationEvent_TraverseEdge(
+          edgeId: dco_decode_String(raw[1]),
+          from: dco_decode_String(raw[2]),
+          to: dco_decode_String(raw[3]),
+          queueNodes: dco_decode_list_String(raw[4]),
+        );
+      case 2:
+        return SimulationEvent_PathFound(
+          pathNodeIds: dco_decode_list_String(raw[1]),
+          bottleneck: dco_decode_i_32(raw[2]),
+        );
+      case 3:
+        return SimulationEvent_PushFlow(
+          edgeId: dco_decode_String(raw[1]),
+          from: dco_decode_String(raw[2]),
+          to: dco_decode_String(raw[3]),
+          delta: dco_decode_i_32(raw[4]),
+          newFlow: dco_decode_i_32(raw[5]),
+        );
+      case 4:
+        return SimulationEvent_Finished(
+          maxFlow: dco_decode_i_32(raw[1]),
+          minCutSourceNodes: dco_decode_list_String(raw[2]),
+          minCutSinkNodes: dco_decode_list_String(raw[3]),
+        );
+      default:
+        throw Exception("unreachable");
+    }
+  }
+
+  @protected
+  SimulationResult dco_decode_simulation_result(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     final arr = raw as List<dynamic>;
     if (arr.length != 2)
       throw Exception('unexpected arr length: expect 2 but see ${arr.length}');
-    return NodeCore(
-      id: dco_decode_String(arr[0]),
-      label: dco_decode_String(arr[1]),
+    return SimulationResult(
+      maxFlow: dco_decode_i_32(arr[0]),
+      events: dco_decode_list_simulation_event(arr[1]),
     );
   }
 
@@ -339,6 +502,20 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
+  FordFulkersonSolver sse_decode_box_autoadd_ford_fulkerson_solver(
+    SseDeserializer deserializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    return (sse_decode_ford_fulkerson_solver(deserializer));
+  }
+
+  @protected
+  GraphCore sse_decode_box_autoadd_graph_core(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    return (sse_decode_graph_core(deserializer));
+  }
+
+  @protected
   EdgeCore sse_decode_edge_core(SseDeserializer deserializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     var var_id = sse_decode_String(deserializer);
@@ -356,6 +533,15 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
+  FordFulkersonSolver sse_decode_ford_fulkerson_solver(
+    SseDeserializer deserializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    var var_graph = sse_decode_graph_core(deserializer);
+    return FordFulkersonSolver(graph: var_graph);
+  }
+
+  @protected
   GraphCore sse_decode_graph_core(SseDeserializer deserializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     var var_nodes = sse_decode_list_node_core(deserializer);
@@ -367,6 +553,18 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   int sse_decode_i_32(SseDeserializer deserializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     return deserializer.buffer.getInt32();
+  }
+
+  @protected
+  List<String> sse_decode_list_String(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+
+    var len_ = sse_decode_i_32(deserializer);
+    var ans_ = <String>[];
+    for (var idx_ = 0; idx_ < len_; ++idx_) {
+      ans_.add(sse_decode_String(deserializer));
+    }
+    return ans_;
   }
 
   @protected
@@ -401,11 +599,99 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
+  List<SimulationEvent> sse_decode_list_simulation_event(
+    SseDeserializer deserializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+
+    var len_ = sse_decode_i_32(deserializer);
+    var ans_ = <SimulationEvent>[];
+    for (var idx_ = 0; idx_ < len_; ++idx_) {
+      ans_.add(sse_decode_simulation_event(deserializer));
+    }
+    return ans_;
+  }
+
+  @protected
   NodeCore sse_decode_node_core(SseDeserializer deserializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     var var_id = sse_decode_String(deserializer);
     var var_label = sse_decode_String(deserializer);
-    return NodeCore(id: var_id, label: var_label);
+    var var_nodeType = sse_decode_node_type(deserializer);
+    return NodeCore(id: var_id, label: var_label, nodeType: var_nodeType);
+  }
+
+  @protected
+  NodeType sse_decode_node_type(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    var inner = sse_decode_i_32(deserializer);
+    return NodeType.values[inner];
+  }
+
+  @protected
+  SimulationEvent sse_decode_simulation_event(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+
+    var tag_ = sse_decode_i_32(deserializer);
+    switch (tag_) {
+      case 0:
+        var var_nodeId = sse_decode_String(deserializer);
+        var var_queueNodes = sse_decode_list_String(deserializer);
+        return SimulationEvent_InspectNode(
+          nodeId: var_nodeId,
+          queueNodes: var_queueNodes,
+        );
+      case 1:
+        var var_edgeId = sse_decode_String(deserializer);
+        var var_from = sse_decode_String(deserializer);
+        var var_to = sse_decode_String(deserializer);
+        var var_queueNodes = sse_decode_list_String(deserializer);
+        return SimulationEvent_TraverseEdge(
+          edgeId: var_edgeId,
+          from: var_from,
+          to: var_to,
+          queueNodes: var_queueNodes,
+        );
+      case 2:
+        var var_pathNodeIds = sse_decode_list_String(deserializer);
+        var var_bottleneck = sse_decode_i_32(deserializer);
+        return SimulationEvent_PathFound(
+          pathNodeIds: var_pathNodeIds,
+          bottleneck: var_bottleneck,
+        );
+      case 3:
+        var var_edgeId = sse_decode_String(deserializer);
+        var var_from = sse_decode_String(deserializer);
+        var var_to = sse_decode_String(deserializer);
+        var var_delta = sse_decode_i_32(deserializer);
+        var var_newFlow = sse_decode_i_32(deserializer);
+        return SimulationEvent_PushFlow(
+          edgeId: var_edgeId,
+          from: var_from,
+          to: var_to,
+          delta: var_delta,
+          newFlow: var_newFlow,
+        );
+      case 4:
+        var var_maxFlow = sse_decode_i_32(deserializer);
+        var var_minCutSourceNodes = sse_decode_list_String(deserializer);
+        var var_minCutSinkNodes = sse_decode_list_String(deserializer);
+        return SimulationEvent_Finished(
+          maxFlow: var_maxFlow,
+          minCutSourceNodes: var_minCutSourceNodes,
+          minCutSinkNodes: var_minCutSinkNodes,
+        );
+      default:
+        throw UnimplementedError('');
+    }
+  }
+
+  @protected
+  SimulationResult sse_decode_simulation_result(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    var var_maxFlow = sse_decode_i_32(deserializer);
+    var var_events = sse_decode_list_simulation_event(deserializer);
+    return SimulationResult(maxFlow: var_maxFlow, events: var_events);
   }
 
   @protected
@@ -438,6 +724,24 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
+  void sse_encode_box_autoadd_ford_fulkerson_solver(
+    FordFulkersonSolver self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_ford_fulkerson_solver(self, serializer);
+  }
+
+  @protected
+  void sse_encode_box_autoadd_graph_core(
+    GraphCore self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_graph_core(self, serializer);
+  }
+
+  @protected
   void sse_encode_edge_core(EdgeCore self, SseSerializer serializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     sse_encode_String(self.id, serializer);
@@ -445,6 +749,15 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
     sse_encode_String(self.to, serializer);
     sse_encode_i_32(self.capacity, serializer);
     sse_encode_i_32(self.flow, serializer);
+  }
+
+  @protected
+  void sse_encode_ford_fulkerson_solver(
+    FordFulkersonSolver self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_graph_core(self.graph, serializer);
   }
 
   @protected
@@ -458,6 +771,15 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   void sse_encode_i_32(int self, SseSerializer serializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     serializer.buffer.putInt32(self);
+  }
+
+  @protected
+  void sse_encode_list_String(List<String> self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_i_32(self.length, serializer);
+    for (final item in self) {
+      sse_encode_String(item, serializer);
+    }
   }
 
   @protected
@@ -495,10 +817,96 @@ class RustLibApiImpl extends RustLibApiImplPlatform implements RustLibApi {
   }
 
   @protected
+  void sse_encode_list_simulation_event(
+    List<SimulationEvent> self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_i_32(self.length, serializer);
+    for (final item in self) {
+      sse_encode_simulation_event(item, serializer);
+    }
+  }
+
+  @protected
   void sse_encode_node_core(NodeCore self, SseSerializer serializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     sse_encode_String(self.id, serializer);
     sse_encode_String(self.label, serializer);
+    sse_encode_node_type(self.nodeType, serializer);
+  }
+
+  @protected
+  void sse_encode_node_type(NodeType self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_i_32(self.index, serializer);
+  }
+
+  @protected
+  void sse_encode_simulation_event(
+    SimulationEvent self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    switch (self) {
+      case SimulationEvent_InspectNode(
+        nodeId: final nodeId,
+        queueNodes: final queueNodes,
+      ):
+        sse_encode_i_32(0, serializer);
+        sse_encode_String(nodeId, serializer);
+        sse_encode_list_String(queueNodes, serializer);
+      case SimulationEvent_TraverseEdge(
+        edgeId: final edgeId,
+        from: final from,
+        to: final to,
+        queueNodes: final queueNodes,
+      ):
+        sse_encode_i_32(1, serializer);
+        sse_encode_String(edgeId, serializer);
+        sse_encode_String(from, serializer);
+        sse_encode_String(to, serializer);
+        sse_encode_list_String(queueNodes, serializer);
+      case SimulationEvent_PathFound(
+        pathNodeIds: final pathNodeIds,
+        bottleneck: final bottleneck,
+      ):
+        sse_encode_i_32(2, serializer);
+        sse_encode_list_String(pathNodeIds, serializer);
+        sse_encode_i_32(bottleneck, serializer);
+      case SimulationEvent_PushFlow(
+        edgeId: final edgeId,
+        from: final from,
+        to: final to,
+        delta: final delta,
+        newFlow: final newFlow,
+      ):
+        sse_encode_i_32(3, serializer);
+        sse_encode_String(edgeId, serializer);
+        sse_encode_String(from, serializer);
+        sse_encode_String(to, serializer);
+        sse_encode_i_32(delta, serializer);
+        sse_encode_i_32(newFlow, serializer);
+      case SimulationEvent_Finished(
+        maxFlow: final maxFlow,
+        minCutSourceNodes: final minCutSourceNodes,
+        minCutSinkNodes: final minCutSinkNodes,
+      ):
+        sse_encode_i_32(4, serializer);
+        sse_encode_i_32(maxFlow, serializer);
+        sse_encode_list_String(minCutSourceNodes, serializer);
+        sse_encode_list_String(minCutSinkNodes, serializer);
+    }
+  }
+
+  @protected
+  void sse_encode_simulation_result(
+    SimulationResult self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_i_32(self.maxFlow, serializer);
+    sse_encode_list_simulation_event(self.events, serializer);
   }
 
   @protected

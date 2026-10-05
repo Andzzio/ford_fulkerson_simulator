@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:ford_fulkerson_simulator/config/theme/app_theme.dart';
 import 'package:ford_fulkerson_simulator/data/services/windows_manager_service.dart';
 import 'package:ford_fulkerson_simulator/providers/service_providers.dart';
 import 'package:gap/gap.dart';
@@ -23,10 +24,10 @@ class AppTitleBar extends ConsumerWidget {
           padding: EdgeInsetsGeometry.only(left: 15),
           child: Row(
             children: [
-              FaIcon(
-                FontAwesomeIcons.diagramProject,
-                size: 15,
-                color: Colors.blueAccent,
+              Image.asset(
+                'assets/icons/app_icon.png',
+                width: 20,
+                height: 20,
               ),
               Gap(10),
               Text(
@@ -43,6 +44,12 @@ class AppTitleBar extends ConsumerWidget {
                       color: _calculateColor(index),
                       onPressed: () async =>
                           _calculateAction(index, windowManagerService),
+                      style: ButtonStyle(
+                        backgroundColor: WidgetStatePropertyAll(
+                          Colors.transparent,
+                        ),
+                        side: WidgetStatePropertyAll(BorderSide.none),
+                      ),
                     ),
                   );
                 }),
@@ -57,9 +64,9 @@ class AppTitleBar extends ConsumerWidget {
 
 Color _calculateColor(int index) {
   return switch (index) {
-    0 => Colors.greenAccent,
-    1 => Colors.orangeAccent,
-    2 => Colors.redAccent,
+    0 => AppTheme.darkBorder,
+    1 => AppTheme.darkBorder,
+    2 => AppTheme.darkBorder,
     _ => Colors.transparent,
   };
 }

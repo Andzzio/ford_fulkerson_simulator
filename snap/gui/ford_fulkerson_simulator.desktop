@@ -1,0 +1,8 @@
+[Desktop Entry]
+Name=Ford-Fulkerson Simulator
+Comment=Ford-Fulkerson Maximum Flow Algorithm Simulator
+Exec=ford-fulkerson-simulator
+Icon=${SNAP}/meta/gui/ford_fulkerson_simulator.png
+Terminal=false
+Type=Application
+Categories=Entertainment;

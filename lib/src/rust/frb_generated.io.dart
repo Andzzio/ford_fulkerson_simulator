@@ -6,7 +6,10 @@
 import 'api/entities/edge_core.dart';
 import 'api/entities/graph_core.dart';
 import 'api/entities/node_core.dart';
+import 'api/ford_fulkerson.dart';
+import 'api/ford_fulkerson_solver.dart';
 import 'api/simple.dart';
+import 'api/simulation_event.dart';
 
 import 'dart:async';
 import 'dart:convert';
@@ -28,13 +31,25 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   String dco_decode_String(dynamic raw);
 
   @protected
+  FordFulkersonSolver dco_decode_box_autoadd_ford_fulkerson_solver(dynamic raw);
+
+  @protected
+  GraphCore dco_decode_box_autoadd_graph_core(dynamic raw);
+
+  @protected
   EdgeCore dco_decode_edge_core(dynamic raw);
+
+  @protected
+  FordFulkersonSolver dco_decode_ford_fulkerson_solver(dynamic raw);
 
   @protected
   GraphCore dco_decode_graph_core(dynamic raw);
 
   @protected
   int dco_decode_i_32(dynamic raw);
+
+  @protected
+  List<String> dco_decode_list_String(dynamic raw);
 
   @protected
   List<EdgeCore> dco_decode_list_edge_core(dynamic raw);
@@ -46,7 +61,19 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   Uint8List dco_decode_list_prim_u_8_strict(dynamic raw);
 
   @protected
+  List<SimulationEvent> dco_decode_list_simulation_event(dynamic raw);
+
+  @protected
   NodeCore dco_decode_node_core(dynamic raw);
+
+  @protected
+  NodeType dco_decode_node_type(dynamic raw);
+
+  @protected
+  SimulationEvent dco_decode_simulation_event(dynamic raw);
+
+  @protected
+  SimulationResult dco_decode_simulation_result(dynamic raw);
 
   @protected
   int dco_decode_u_8(dynamic raw);
@@ -61,13 +88,29 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   String sse_decode_String(SseDeserializer deserializer);
 
   @protected
+  FordFulkersonSolver sse_decode_box_autoadd_ford_fulkerson_solver(
+    SseDeserializer deserializer,
+  );
+
+  @protected
+  GraphCore sse_decode_box_autoadd_graph_core(SseDeserializer deserializer);
+
+  @protected
   EdgeCore sse_decode_edge_core(SseDeserializer deserializer);
+
+  @protected
+  FordFulkersonSolver sse_decode_ford_fulkerson_solver(
+    SseDeserializer deserializer,
+  );
 
   @protected
   GraphCore sse_decode_graph_core(SseDeserializer deserializer);
 
   @protected
   int sse_decode_i_32(SseDeserializer deserializer);
+
+  @protected
+  List<String> sse_decode_list_String(SseDeserializer deserializer);
 
   @protected
   List<EdgeCore> sse_decode_list_edge_core(SseDeserializer deserializer);
@@ -79,7 +122,21 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   Uint8List sse_decode_list_prim_u_8_strict(SseDeserializer deserializer);
 
   @protected
+  List<SimulationEvent> sse_decode_list_simulation_event(
+    SseDeserializer deserializer,
+  );
+
+  @protected
   NodeCore sse_decode_node_core(SseDeserializer deserializer);
+
+  @protected
+  NodeType sse_decode_node_type(SseDeserializer deserializer);
+
+  @protected
+  SimulationEvent sse_decode_simulation_event(SseDeserializer deserializer);
+
+  @protected
+  SimulationResult sse_decode_simulation_result(SseDeserializer deserializer);
 
   @protected
   int sse_decode_u_8(SseDeserializer deserializer);
@@ -97,13 +154,34 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   void sse_encode_String(String self, SseSerializer serializer);
 
   @protected
+  void sse_encode_box_autoadd_ford_fulkerson_solver(
+    FordFulkersonSolver self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_box_autoadd_graph_core(
+    GraphCore self,
+    SseSerializer serializer,
+  );
+
+  @protected
   void sse_encode_edge_core(EdgeCore self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_ford_fulkerson_solver(
+    FordFulkersonSolver self,
+    SseSerializer serializer,
+  );
 
   @protected
   void sse_encode_graph_core(GraphCore self, SseSerializer serializer);
 
   @protected
   void sse_encode_i_32(int self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_list_String(List<String> self, SseSerializer serializer);
 
   @protected
   void sse_encode_list_edge_core(List<EdgeCore> self, SseSerializer serializer);
@@ -118,7 +196,28 @@ abstract class RustLibApiImplPlatform extends BaseApiImpl<RustLibWire> {
   );
 
   @protected
+  void sse_encode_list_simulation_event(
+    List<SimulationEvent> self,
+    SseSerializer serializer,
+  );
+
+  @protected
   void sse_encode_node_core(NodeCore self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_node_type(NodeType self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_simulation_event(
+    SimulationEvent self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_simulation_result(
+    SimulationResult self,
+    SseSerializer serializer,
+  );
 
   @protected
   void sse_encode_u_8(int self, SseSerializer serializer);

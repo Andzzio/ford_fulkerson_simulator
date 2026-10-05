@@ -39,7 +39,7 @@ flutter_rust_bridge::frb_generated_boilerplate!(
     default_rust_auto_opaque = RustAutoOpaqueMoi,
 );
 pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_VERSION: &str = "2.13.0";
-pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_CONTENT_HASH: i32 = -242102989;
+pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_CONTENT_HASH: i32 = -1466662087;
 
 // Section: executor
 
@@ -47,6 +47,79 @@ flutter_rust_bridge::frb_generated_default_handler!();
 
 // Section: wire_funcs
 
+fn wire__crate__api__ford_fulkerson_solver__ford_fulkerson_solver_new_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
+    rust_vec_len_: i32,
+    data_len_: i32,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_normal::<flutter_rust_bridge::for_generated::SseCodec, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "ford_fulkerson_solver_new",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let message = unsafe {
+                flutter_rust_bridge::for_generated::Dart2RustMessageSse::from_wire(
+                    ptr_,
+                    rust_vec_len_,
+                    data_len_,
+                )
+            };
+            let mut deserializer =
+                flutter_rust_bridge::for_generated::SseDeserializer::new(message);
+            let api_graph =
+                <crate::api::entities::graph_core::GraphCore>::sse_decode(&mut deserializer);
+            deserializer.end();
+            move |context| {
+                transform_result_sse::<_, ()>((move || {
+                    let output_ok = Ok::<_, ()>(
+                        crate::api::ford_fulkerson_solver::FordFulkersonSolver::new(api_graph),
+                    )?;
+                    std::result::Result::Ok(output_ok)
+                })())
+            }
+        },
+    )
+}
+fn wire__crate__api__ford_fulkerson_solver__ford_fulkerson_solver_solve_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
+    rust_vec_len_: i32,
+    data_len_: i32,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_normal::<flutter_rust_bridge::for_generated::SseCodec, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "ford_fulkerson_solver_solve",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let message = unsafe {
+                flutter_rust_bridge::for_generated::Dart2RustMessageSse::from_wire(
+                    ptr_,
+                    rust_vec_len_,
+                    data_len_,
+                )
+            };
+            let mut deserializer =
+                flutter_rust_bridge::for_generated::SseDeserializer::new(message);
+            let api_that = <crate::api::ford_fulkerson_solver::FordFulkersonSolver>::sse_decode(
+                &mut deserializer,
+            );
+            deserializer.end();
+            move |context| {
+                transform_result_sse::<_, ()>((move || {
+                    let output_ok = Ok::<_, ()>(
+                        crate::api::ford_fulkerson_solver::FordFulkersonSolver::solve(api_that),
+                    )?;
+                    std::result::Result::Ok(output_ok)
+                })())
+            }
+        },
+    )
+}
 fn wire__crate__api__entities__graph_core__graph_core_generate_blank_impl(
     ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
     rust_vec_len_: i32,
@@ -173,17 +246,16 @@ fn wire__crate__api__simple__init_app_impl(
         },
     )
 }
-fn wire__crate__api__entities__node_core__node_core_new_impl(
-    port_: flutter_rust_bridge::for_generated::MessagePort,
+fn wire__crate__api__ford_fulkerson__run_ford_fulkerson_impl(
     ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
     rust_vec_len_: i32,
     data_len_: i32,
-) {
-    FLUTTER_RUST_BRIDGE_HANDLER.wrap_normal::<flutter_rust_bridge::for_generated::SseCodec, _, _>(
+) -> flutter_rust_bridge::for_generated::WireSyncRust2DartSse {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_sync::<flutter_rust_bridge::for_generated::SseCodec, _>(
         flutter_rust_bridge::for_generated::TaskInfo {
-            debug_name: "node_core_new",
-            port: Some(port_),
-            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+            debug_name: "run_ford_fulkerson",
+            port: None,
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Sync,
         },
         move || {
             let message = unsafe {
@@ -195,17 +267,14 @@ fn wire__crate__api__entities__node_core__node_core_new_impl(
             };
             let mut deserializer =
                 flutter_rust_bridge::for_generated::SseDeserializer::new(message);
-            let api_id = <String>::sse_decode(&mut deserializer);
-            let api_label = <String>::sse_decode(&mut deserializer);
+            let api_graph =
+                <crate::api::entities::graph_core::GraphCore>::sse_decode(&mut deserializer);
             deserializer.end();
-            move |context| {
-                transform_result_sse::<_, ()>((move || {
-                    let output_ok = Ok::<_, ()>(crate::api::entities::node_core::NodeCore::new(
-                        api_id, api_label,
-                    ))?;
-                    std::result::Result::Ok(output_ok)
-                })())
-            }
+            transform_result_sse::<_, ()>((move || {
+                let output_ok =
+                    Ok::<_, ()>(crate::api::ford_fulkerson::run_ford_fulkerson(api_graph))?;
+                std::result::Result::Ok(output_ok)
+            })())
         },
     )
 }
@@ -238,6 +307,14 @@ impl SseDecode for crate::api::entities::edge_core::EdgeCore {
     }
 }
 
+impl SseDecode for crate::api::ford_fulkerson_solver::FordFulkersonSolver {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut var_graph = <crate::api::entities::graph_core::GraphCore>::sse_decode(deserializer);
+        return crate::api::ford_fulkerson_solver::FordFulkersonSolver { graph: var_graph };
+    }
+}
+
 impl SseDecode for crate::api::entities::graph_core::GraphCore {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
@@ -256,6 +333,18 @@ impl SseDecode for i32 {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
         deserializer.cursor.read_i32::<NativeEndian>().unwrap()
+    }
+}
+
+impl SseDecode for Vec<String> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut len_ = <i32>::sse_decode(deserializer);
+        let mut ans_ = Vec::with_capacity(len_ as usize);
+        for idx_ in 0..len_ {
+            ans_.push(<String>::sse_decode(deserializer));
+        }
+        return ans_;
     }
 }
 
@@ -299,14 +388,121 @@ impl SseDecode for Vec<u8> {
     }
 }
 
+impl SseDecode for Vec<crate::api::simulation_event::SimulationEvent> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut len_ = <i32>::sse_decode(deserializer);
+        let mut ans_ = Vec::with_capacity(len_ as usize);
+        for idx_ in 0..len_ {
+            ans_.push(<crate::api::simulation_event::SimulationEvent>::sse_decode(
+                deserializer,
+            ));
+        }
+        return ans_;
+    }
+}
+
 impl SseDecode for crate::api::entities::node_core::NodeCore {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
         let mut var_id = <String>::sse_decode(deserializer);
         let mut var_label = <String>::sse_decode(deserializer);
+        let mut var_nodeType =
+            <crate::api::entities::node_core::NodeType>::sse_decode(deserializer);
         return crate::api::entities::node_core::NodeCore {
             id: var_id,
             label: var_label,
+            node_type: var_nodeType,
+        };
+    }
+}
+
+impl SseDecode for crate::api::entities::node_core::NodeType {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut inner = <i32>::sse_decode(deserializer);
+        return match inner {
+            0 => crate::api::entities::node_core::NodeType::Source,
+            1 => crate::api::entities::node_core::NodeType::Sink,
+            2 => crate::api::entities::node_core::NodeType::Intermediate,
+            _ => unreachable!("Invalid variant for NodeType: {}", inner),
+        };
+    }
+}
+
+impl SseDecode for crate::api::simulation_event::SimulationEvent {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut tag_ = <i32>::sse_decode(deserializer);
+        match tag_ {
+            0 => {
+                let mut var_nodeId = <String>::sse_decode(deserializer);
+                let mut var_queueNodes = <Vec<String>>::sse_decode(deserializer);
+                return crate::api::simulation_event::SimulationEvent::InspectNode {
+                    node_id: var_nodeId,
+                    queue_nodes: var_queueNodes,
+                };
+            }
+            1 => {
+                let mut var_edgeId = <String>::sse_decode(deserializer);
+                let mut var_from = <String>::sse_decode(deserializer);
+                let mut var_to = <String>::sse_decode(deserializer);
+                let mut var_queueNodes = <Vec<String>>::sse_decode(deserializer);
+                return crate::api::simulation_event::SimulationEvent::TraverseEdge {
+                    edge_id: var_edgeId,
+                    from: var_from,
+                    to: var_to,
+                    queue_nodes: var_queueNodes,
+                };
+            }
+            2 => {
+                let mut var_pathNodeIds = <Vec<String>>::sse_decode(deserializer);
+                let mut var_bottleneck = <i32>::sse_decode(deserializer);
+                return crate::api::simulation_event::SimulationEvent::PathFound {
+                    path_node_ids: var_pathNodeIds,
+                    bottleneck: var_bottleneck,
+                };
+            }
+            3 => {
+                let mut var_edgeId = <String>::sse_decode(deserializer);
+                let mut var_from = <String>::sse_decode(deserializer);
+                let mut var_to = <String>::sse_decode(deserializer);
+                let mut var_delta = <i32>::sse_decode(deserializer);
+                let mut var_newFlow = <i32>::sse_decode(deserializer);
+                return crate::api::simulation_event::SimulationEvent::PushFlow {
+                    edge_id: var_edgeId,
+                    from: var_from,
+                    to: var_to,
+                    delta: var_delta,
+                    new_flow: var_newFlow,
+                };
+            }
+            4 => {
+                let mut var_maxFlow = <i32>::sse_decode(deserializer);
+                let mut var_minCutSourceNodes = <Vec<String>>::sse_decode(deserializer);
+                let mut var_minCutSinkNodes = <Vec<String>>::sse_decode(deserializer);
+                return crate::api::simulation_event::SimulationEvent::Finished {
+                    max_flow: var_maxFlow,
+                    min_cut_source_nodes: var_minCutSourceNodes,
+                    min_cut_sink_nodes: var_minCutSinkNodes,
+                };
+            }
+            _ => {
+                unimplemented!("");
+            }
+        }
+    }
+}
+
+impl SseDecode for crate::api::simulation_event::SimulationResult {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut var_maxFlow = <i32>::sse_decode(deserializer);
+        let mut var_events =
+            <Vec<crate::api::simulation_event::SimulationEvent>>::sse_decode(deserializer);
+        return crate::api::simulation_event::SimulationResult {
+            max_flow: var_maxFlow,
+            events: var_events,
         };
     }
 }
@@ -346,13 +542,19 @@ fn pde_ffi_dispatcher_primary_impl(
 ) {
     // Codec=Pde (Serialization + dispatch), see doc to use other codecs
     match func_id {
-        4 => wire__crate__api__simple__init_app_impl(port, ptr, rust_vec_len, data_len),
-        5 => wire__crate__api__entities__node_core__node_core_new_impl(
+        1 => wire__crate__api__ford_fulkerson_solver__ford_fulkerson_solver_new_impl(
             port,
             ptr,
             rust_vec_len,
             data_len,
         ),
+        2 => wire__crate__api__ford_fulkerson_solver__ford_fulkerson_solver_solve_impl(
+            port,
+            ptr,
+            rust_vec_len,
+            data_len,
+        ),
+        6 => wire__crate__api__simple__init_app_impl(port, ptr, rust_vec_len, data_len),
         _ => unreachable!(),
     }
 }
@@ -365,17 +567,18 @@ fn pde_ffi_dispatcher_sync_impl(
 ) -> flutter_rust_bridge::for_generated::WireSyncRust2DartSse {
     // Codec=Pde (Serialization + dispatch), see doc to use other codecs
     match func_id {
-        1 => wire__crate__api__entities__graph_core__graph_core_generate_blank_impl(
+        3 => wire__crate__api__entities__graph_core__graph_core_generate_blank_impl(
             ptr,
             rust_vec_len,
             data_len,
         ),
-        2 => wire__crate__api__entities__graph_core__graph_core_generate_random_impl(
+        4 => wire__crate__api__entities__graph_core__graph_core_generate_random_impl(
             ptr,
             rust_vec_len,
             data_len,
         ),
-        3 => wire__crate__api__simple__greet_impl(ptr, rust_vec_len, data_len),
+        5 => wire__crate__api__simple__greet_impl(ptr, rust_vec_len, data_len),
+        7 => wire__crate__api__ford_fulkerson__run_ford_fulkerson_impl(ptr, rust_vec_len, data_len),
         _ => unreachable!(),
     }
 }
@@ -407,6 +610,23 @@ impl flutter_rust_bridge::IntoIntoDart<crate::api::entities::edge_core::EdgeCore
     }
 }
 // Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for crate::api::ford_fulkerson_solver::FordFulkersonSolver {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        [self.graph.into_into_dart().into_dart()].into_dart()
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive
+    for crate::api::ford_fulkerson_solver::FordFulkersonSolver
+{
+}
+impl flutter_rust_bridge::IntoIntoDart<crate::api::ford_fulkerson_solver::FordFulkersonSolver>
+    for crate::api::ford_fulkerson_solver::FordFulkersonSolver
+{
+    fn into_into_dart(self) -> crate::api::ford_fulkerson_solver::FordFulkersonSolver {
+        self
+    }
+}
+// Codec=Dco (DartCObject based), see doc to use other codecs
 impl flutter_rust_bridge::IntoDart for crate::api::entities::graph_core::GraphCore {
     fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
         [
@@ -433,6 +653,7 @@ impl flutter_rust_bridge::IntoDart for crate::api::entities::node_core::NodeCore
         [
             self.id.into_into_dart().into_dart(),
             self.label.into_into_dart().into_dart(),
+            self.node_type.into_into_dart().into_dart(),
         ]
         .into_dart()
     }
@@ -445,6 +666,127 @@ impl flutter_rust_bridge::IntoIntoDart<crate::api::entities::node_core::NodeCore
     for crate::api::entities::node_core::NodeCore
 {
     fn into_into_dart(self) -> crate::api::entities::node_core::NodeCore {
+        self
+    }
+}
+// Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for crate::api::entities::node_core::NodeType {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        match self {
+            Self::Source => 0.into_dart(),
+            Self::Sink => 1.into_dart(),
+            Self::Intermediate => 2.into_dart(),
+            _ => unreachable!(),
+        }
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive
+    for crate::api::entities::node_core::NodeType
+{
+}
+impl flutter_rust_bridge::IntoIntoDart<crate::api::entities::node_core::NodeType>
+    for crate::api::entities::node_core::NodeType
+{
+    fn into_into_dart(self) -> crate::api::entities::node_core::NodeType {
+        self
+    }
+}
+// Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for crate::api::simulation_event::SimulationEvent {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        match self {
+            crate::api::simulation_event::SimulationEvent::InspectNode {
+                node_id,
+                queue_nodes,
+            } => [
+                0.into_dart(),
+                node_id.into_into_dart().into_dart(),
+                queue_nodes.into_into_dart().into_dart(),
+            ]
+            .into_dart(),
+            crate::api::simulation_event::SimulationEvent::TraverseEdge {
+                edge_id,
+                from,
+                to,
+                queue_nodes,
+            } => [
+                1.into_dart(),
+                edge_id.into_into_dart().into_dart(),
+                from.into_into_dart().into_dart(),
+                to.into_into_dart().into_dart(),
+                queue_nodes.into_into_dart().into_dart(),
+            ]
+            .into_dart(),
+            crate::api::simulation_event::SimulationEvent::PathFound {
+                path_node_ids,
+                bottleneck,
+            } => [
+                2.into_dart(),
+                path_node_ids.into_into_dart().into_dart(),
+                bottleneck.into_into_dart().into_dart(),
+            ]
+            .into_dart(),
+            crate::api::simulation_event::SimulationEvent::PushFlow {
+                edge_id,
+                from,
+                to,
+                delta,
+                new_flow,
+            } => [
+                3.into_dart(),
+                edge_id.into_into_dart().into_dart(),
+                from.into_into_dart().into_dart(),
+                to.into_into_dart().into_dart(),
+                delta.into_into_dart().into_dart(),
+                new_flow.into_into_dart().into_dart(),
+            ]
+            .into_dart(),
+            crate::api::simulation_event::SimulationEvent::Finished {
+                max_flow,
+                min_cut_source_nodes,
+                min_cut_sink_nodes,
+            } => [
+                4.into_dart(),
+                max_flow.into_into_dart().into_dart(),
+                min_cut_source_nodes.into_into_dart().into_dart(),
+                min_cut_sink_nodes.into_into_dart().into_dart(),
+            ]
+            .into_dart(),
+            _ => {
+                unimplemented!("");
+            }
+        }
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive
+    for crate::api::simulation_event::SimulationEvent
+{
+}
+impl flutter_rust_bridge::IntoIntoDart<crate::api::simulation_event::SimulationEvent>
+    for crate::api::simulation_event::SimulationEvent
+{
+    fn into_into_dart(self) -> crate::api::simulation_event::SimulationEvent {
+        self
+    }
+}
+// Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for crate::api::simulation_event::SimulationResult {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        [
+            self.max_flow.into_into_dart().into_dart(),
+            self.events.into_into_dart().into_dart(),
+        ]
+        .into_dart()
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive
+    for crate::api::simulation_event::SimulationResult
+{
+}
+impl flutter_rust_bridge::IntoIntoDart<crate::api::simulation_event::SimulationResult>
+    for crate::api::simulation_event::SimulationResult
+{
+    fn into_into_dart(self) -> crate::api::simulation_event::SimulationResult {
         self
     }
 }
@@ -467,6 +809,13 @@ impl SseEncode for crate::api::entities::edge_core::EdgeCore {
     }
 }
 
+impl SseEncode for crate::api::ford_fulkerson_solver::FordFulkersonSolver {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <crate::api::entities::graph_core::GraphCore>::sse_encode(self.graph, serializer);
+    }
+}
+
 impl SseEncode for crate::api::entities::graph_core::GraphCore {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
@@ -479,6 +828,16 @@ impl SseEncode for i32 {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
         serializer.cursor.write_i32::<NativeEndian>(self).unwrap();
+    }
+}
+
+impl SseEncode for Vec<String> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <i32>::sse_encode(self.len() as _, serializer);
+        for item in self {
+            <String>::sse_encode(item, serializer);
+        }
     }
 }
 
@@ -512,11 +871,110 @@ impl SseEncode for Vec<u8> {
     }
 }
 
+impl SseEncode for Vec<crate::api::simulation_event::SimulationEvent> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <i32>::sse_encode(self.len() as _, serializer);
+        for item in self {
+            <crate::api::simulation_event::SimulationEvent>::sse_encode(item, serializer);
+        }
+    }
+}
+
 impl SseEncode for crate::api::entities::node_core::NodeCore {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
         <String>::sse_encode(self.id, serializer);
         <String>::sse_encode(self.label, serializer);
+        <crate::api::entities::node_core::NodeType>::sse_encode(self.node_type, serializer);
+    }
+}
+
+impl SseEncode for crate::api::entities::node_core::NodeType {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <i32>::sse_encode(
+            match self {
+                crate::api::entities::node_core::NodeType::Source => 0,
+                crate::api::entities::node_core::NodeType::Sink => 1,
+                crate::api::entities::node_core::NodeType::Intermediate => 2,
+                _ => {
+                    unimplemented!("");
+                }
+            },
+            serializer,
+        );
+    }
+}
+
+impl SseEncode for crate::api::simulation_event::SimulationEvent {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        match self {
+            crate::api::simulation_event::SimulationEvent::InspectNode {
+                node_id,
+                queue_nodes,
+            } => {
+                <i32>::sse_encode(0, serializer);
+                <String>::sse_encode(node_id, serializer);
+                <Vec<String>>::sse_encode(queue_nodes, serializer);
+            }
+            crate::api::simulation_event::SimulationEvent::TraverseEdge {
+                edge_id,
+                from,
+                to,
+                queue_nodes,
+            } => {
+                <i32>::sse_encode(1, serializer);
+                <String>::sse_encode(edge_id, serializer);
+                <String>::sse_encode(from, serializer);
+                <String>::sse_encode(to, serializer);
+                <Vec<String>>::sse_encode(queue_nodes, serializer);
+            }
+            crate::api::simulation_event::SimulationEvent::PathFound {
+                path_node_ids,
+                bottleneck,
+            } => {
+                <i32>::sse_encode(2, serializer);
+                <Vec<String>>::sse_encode(path_node_ids, serializer);
+                <i32>::sse_encode(bottleneck, serializer);
+            }
+            crate::api::simulation_event::SimulationEvent::PushFlow {
+                edge_id,
+                from,
+                to,
+                delta,
+                new_flow,
+            } => {
+                <i32>::sse_encode(3, serializer);
+                <String>::sse_encode(edge_id, serializer);
+                <String>::sse_encode(from, serializer);
+                <String>::sse_encode(to, serializer);
+                <i32>::sse_encode(delta, serializer);
+                <i32>::sse_encode(new_flow, serializer);
+            }
+            crate::api::simulation_event::SimulationEvent::Finished {
+                max_flow,
+                min_cut_source_nodes,
+                min_cut_sink_nodes,
+            } => {
+                <i32>::sse_encode(4, serializer);
+                <i32>::sse_encode(max_flow, serializer);
+                <Vec<String>>::sse_encode(min_cut_source_nodes, serializer);
+                <Vec<String>>::sse_encode(min_cut_sink_nodes, serializer);
+            }
+            _ => {
+                unimplemented!("");
+            }
+        }
+    }
+}
+
+impl SseEncode for crate::api::simulation_event::SimulationResult {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <i32>::sse_encode(self.max_flow, serializer);
+        <Vec<crate::api::simulation_event::SimulationEvent>>::sse_encode(self.events, serializer);
     }
 }
 

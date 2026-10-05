@@ -3,7 +3,7 @@ import 'package:ford_fulkerson_simulator/src/rust/api/entities/node_core.dart';
 
 class NodeUi {
   NodeUi({required this.core, required this.position, required this.radius});
-  final NodeCore core;
+  NodeCore core;
   Offset position;
   final double radius;
 
