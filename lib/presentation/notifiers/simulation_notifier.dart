@@ -88,6 +88,10 @@ class SimulationNotifier extends Notifier<SimulationState> {
     state = state.copyWith(status: newStatus);
   }
 
+  void toggleResidual() {
+    state = state.copyWith(showResidual: !state.showResidual);
+  }
+
   void stepBackward() {
     _timer?.cancel();
     if (canStepBackward) {

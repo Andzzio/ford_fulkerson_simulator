@@ -10,6 +10,7 @@ import 'package:ford_fulkerson_simulator/presentation/notifiers/simulation_notif
 import 'package:ford_fulkerson_simulator/presentation/notifiers/viewport_controller.dart';
 import 'package:ford_fulkerson_simulator/presentation/painters/edges_painter.dart';
 import 'package:ford_fulkerson_simulator/presentation/painters/min_cut_calculator.dart';
+import 'package:ford_fulkerson_simulator/presentation/painters/residual_edges_painter.dart';
 import 'package:ford_fulkerson_simulator/presentation/painters/viewport_painter.dart';
 import 'package:ford_fulkerson_simulator/presentation/widgets/add_edge_dialog.dart';
 import 'package:ford_fulkerson_simulator/presentation/widgets/add_node_dialog.dart';
@@ -89,7 +90,7 @@ class _GraphViewportState extends ConsumerState<GraphViewport>
 
   void _centerGraph() {
     final graphState = ref.read(graphStateNotifier);
-    final nodes = graphState.nodes;
+    final nodes = [...graphState.nodes, ...graphState.virtualNodes];
     final viewW = _viewportSize.width > 0 ? _viewportSize.width : 800.0;
     final viewH = _viewportSize.height > 0 ? _viewportSize.height : 600.0;
 
@@ -182,6 +183,10 @@ class _GraphViewportState extends ConsumerState<GraphViewport>
     final modeNotifier = ref.read(graphModeNotifier.notifier);
     final edgeColors = simulationState.getEdgeColors(graphState.edges);
     final nodeBorderColors = simulationState.nodeBorderColors;
+    final nodeLabels = simulationState.getNodeLabels(
+      graphState.nodes,
+      graphState.edges,
+    );
     Path? minCutPath;
     final currentEvent = simulationState.currentEvent;
     if (currentEvent is SimulationEvent_Finished) {
@@ -288,12 +293,34 @@ class _GraphViewportState extends ConsumerState<GraphViewport>
                         ),
                         Positioned.fill(
                           child: CustomPaint(
-                            painter: EdgesPainter(
-                              edges: graphState.edges,
-                              edgeColors: edgeColors,
-                              currentFlows: simulationState.currentFlows,
-                              minCutPath: minCutPath,
-                            ),
+                            painter: simulationState.showResidual
+                                ? ResidualEdgesPainter(
+                                    edges: [
+                                      ...graphState.virtualEdges,
+                                      ...graphState.edges,
+                                    ],
+                                    edgeColors: simulationState
+                                        .getResidualEdgeColors(graphState.edges),
+                                    currentFlows: simulationState
+                                        .getFlowsWithVirtual(
+                                          graphState.edges,
+                                          graphState.virtualEdges,
+                                        ),
+                                    minCutPath: minCutPath,
+                                  )
+                                : EdgesPainter(
+                                    edges: [
+                                      ...graphState.virtualEdges,
+                                      ...graphState.edges,
+                                    ],
+                                    edgeColors: edgeColors,
+                                    currentFlows: simulationState
+                                        .getFlowsWithVirtual(
+                                          graphState.edges,
+                                          graphState.virtualEdges,
+                                        ),
+                                    minCutPath: minCutPath,
+                                  ),
                           ),
                         ),
                         ...graphState.edges.map((edge) {
@@ -314,8 +341,31 @@ class _GraphViewportState extends ConsumerState<GraphViewport>
                             },
                           );
                         }),
+                        ...graphState.virtualNodes.map((vNode) {
+                          return Positioned(
+                            key: ValueKey(vNode.id),
+                            left: vNode.position.dx - vNode.radius,
+                            top: vNode.position.dy - vNode.radius,
+                            child: NodeWidget(
+                              node: vNode,
+                              borderColor: nodeBorderColors[vNode.id],
+                              onTap: () {},
+                              onPanUpdate:
+                                  (simulationStateNotifier.isSimulating ||
+                                      mode != GraphMode.move)
+                                  ? null
+                                  : (details) {
+                                      graphNotifier.moveNode(
+                                        vNode,
+                                        details.delta,
+                                      );
+                                    },
+                            ),
+                          );
+                        }),
                         ...graphState.nodes.map((node) {
                           return Positioned(
+                            key: ValueKey(node.id),
                             left: node.position.dx - node.radius,
                             top: node.position.dy - node.radius,
                             child: NodeWidget(
@@ -387,33 +437,109 @@ class _GraphViewportState extends ConsumerState<GraphViewport>
                             ),
                           );
                         }),
-                        ...graphState.nodes
-                            .where(
-                              (node) => node.core.nodeType == NodeType.sink,
-                            )
-                            .map((node) {
-                              if (!simulationStateNotifier.isSimulating) {
-                                return const SizedBox.shrink();
-                              }
-                              final sinkFlow = simulationState.getSinkFlow(
-                                node.id,
-                                graphState.edges,
-                              );
-                              return Positioned(
-                                left: node.position.dx,
-                                top: node.position.dy - node.radius - 8,
-                                child: FractionalTranslation(
-                                  translation: const Offset(-0.5, -1.0),
-                                  child: AppInfoBadge.text(
-                                    text: 'Flujo: $sinkFlow',
-                                    height: 32,
-                                    padding: const EdgeInsets.symmetric(
-                                      horizontal: 8,
-                                    ),
+                        if (simulationStateNotifier.isSimulating &&
+                            graphState.superSinkNode != null)
+                          Positioned(
+                            left: graphState.superSinkNode!.position.dx,
+                            top:
+                                graphState.superSinkNode!.position.dy -
+                                graphState.superSinkNode!.radius -
+                                8,
+                            child: FractionalTranslation(
+                              translation: const Offset(-0.5, -1.0),
+                              child: IgnorePointer(
+                                child: AppInfoBadge.text(
+                                  text:
+                                      'Flujo Total: ${simulationState.getTotalSinkFlow(graphState.nodes, graphState.edges)}',
+                                  height: 32,
+                                  padding: const EdgeInsets.symmetric(
+                                    horizontal: 8,
                                   ),
                                 ),
-                              );
-                            }),
+                              ),
+                            ),
+                          ),
+                        if (simulationStateNotifier.isSimulating)
+                          ...graphState.nodes.map((node) {
+                            final nodeLabel = nodeLabels[node.id];
+                            final isSink =
+                                node.core.nodeType == NodeType.sink;
+                            if (nodeLabel == null && !isSink) {
+                              return const SizedBox.shrink();
+                            }
+                            return Positioned(
+                              left: node.position.dx,
+                              top: node.position.dy - node.radius - 8,
+                              child: FractionalTranslation(
+                                translation: const Offset(-0.5, -1.0),
+                                child: IgnorePointer(
+                                  child: Column(
+                                    mainAxisSize: MainAxisSize.min,
+                                    spacing: 4,
+                                    children: [
+                                      if (isSink)
+                                        AppInfoBadge.text(
+                                          text:
+                                              'Flujo: ${simulationState.getSinkFlow(node.id, graphState.edges)}',
+                                          height: 32,
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 8,
+                                          ),
+                                        ),
+                                      if (nodeLabel != null)
+                                        AppInfoBadge(
+                                          height: 28,
+                                          padding: const EdgeInsets.symmetric(
+                                            horizontal: 8,
+                                          ),
+                                          child: Text.rich(
+                                            TextSpan(
+                                              style: Theme.of(
+                                                context,
+                                              ).textTheme.bodyMedium,
+                                              children: [
+                                                TextSpan(
+                                                  text:
+                                                      '[${nodeLabel.predecessor}',
+                                                ),
+                                                if (nodeLabel.sign != null)
+                                                  WidgetSpan(
+                                                    alignment:
+                                                        PlaceholderAlignment
+                                                            .top,
+                                                    child: Transform.translate(
+                                                      offset: const Offset(
+                                                        0,
+                                                        -2,
+                                                      ),
+                                                      child: Text(
+                                                        nodeLabel.sign!,
+                                                        style: Theme.of(context)
+                                                            .textTheme
+                                                            .bodyMedium
+                                                            ?.copyWith(
+                                                              fontSize: 11,
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .bold,
+                                                            ),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                TextSpan(
+                                                  text:
+                                                      ', ${nodeLabel.delta}]',
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                            );
+                          }),
                         if (graphState.selectedNode != null &&
                             !simulationStateNotifier.isSimulating &&
                             mode == GraphMode.move)
@@ -500,6 +626,21 @@ class _GraphViewportState extends ConsumerState<GraphViewport>
             if (simulationStateNotifier.isSimulating) ...[
               Positioned(bottom: 10, left: 10, child: SimulationControls()),
               Positioned(top: 10, right: 10, child: SimulationHistoryTile()),
+              Positioned(
+                top: 10,
+                left: 10,
+                child: Tooltip(
+                  message: simulationState.showResidual
+                      ? 'Ver red de flujo'
+                      : 'Ver red residual',
+                  child: OutlinedButtonElevated.icon(
+                    iconData: FontAwesomeIcons.rightLeft,
+                    label: 'Red residual',
+                    isActive: simulationState.showResidual,
+                    onPressed: simulationStateNotifier.toggleResidual,
+                  ),
+                ),
+              ),
             ],
           ],
         ),

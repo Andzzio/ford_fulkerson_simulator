@@ -36,9 +36,15 @@ class _NodeWidgetState extends ConsumerState<NodeWidget> {
         mode == GraphMode.move && graphState.selectedNode == widget.node;
     final isSelectedInJoin =
         mode == GraphMode.join && graphState.joinSourceNode == widget.node;
-    final selected = isSelectedInMove || isSelectedInJoin;
+    final isVirtual = widget.node.isVirtual;
+    final selected = !isVirtual && (isSelectedInMove || isSelectedInJoin);
+    final tooltipText = isVirtual
+        ? (widget.node.core.nodeType == NodeType.source
+            ? 'Origen Ficticio (${widget.node.label})'
+            : 'Destino Ficticio (${widget.node.label})')
+        : widget.node.label;
     return Tooltip(
-      message: widget.node.label,
+      message: tooltipText,
       child: GestureDetector(
         onTap: widget.onTap,
         onPanStart: widget.onPanUpdate != null
@@ -62,23 +68,29 @@ class _NodeWidgetState extends ConsumerState<NodeWidget> {
               _isHovered = false;
             });
           },
-          cursor: switch (mode) {
-            GraphMode.move => widget.onPanUpdate != null
-                ? (_isDragging
-                    ? SystemMouseCursors.grabbing
-                    : SystemMouseCursors.grab)
-                : SystemMouseCursors.click,
-            GraphMode.add => SystemMouseCursors.basic,
-            GraphMode.join => SystemMouseCursors.click,
-            GraphMode.delete => SystemMouseCursors.forbidden,
-          },
+          cursor: isVirtual
+              ? (mode == GraphMode.move && widget.onPanUpdate != null
+                  ? (_isDragging
+                      ? SystemMouseCursors.grabbing
+                      : SystemMouseCursors.grab)
+                  : SystemMouseCursors.basic)
+              : switch (mode) {
+                  GraphMode.move => widget.onPanUpdate != null
+                      ? (_isDragging
+                          ? SystemMouseCursors.grabbing
+                          : SystemMouseCursors.grab)
+                      : SystemMouseCursors.click,
+                  GraphMode.add => SystemMouseCursors.basic,
+                  GraphMode.join => SystemMouseCursors.click,
+                  GraphMode.delete => SystemMouseCursors.forbidden,
+                },
           child: Container(
             width: diameter,
             height: diameter,
             decoration: BoxDecoration(
-              color: _isHovered
+              color: _isHovered && (!isVirtual || mode == GraphMode.move)
                   ? AppTheme.blueGreyHoverColor
-                  : _getNodeColor(widget.node.core.nodeType),
+                  : _getNodeColor(widget.node.core.nodeType, isVirtual),
               shape: BoxShape.circle,
               border: Border.all(
                 color: widget.borderColor ??
@@ -98,7 +110,12 @@ class _NodeWidgetState extends ConsumerState<NodeWidget> {
     );
   }
 
-  Color _getNodeColor(NodeType type) {
+  Color _getNodeColor(NodeType type, bool isVirtual) {
+    if (isVirtual) {
+      return type == NodeType.source
+          ? const Color(0xFFB9F6CA)
+          : const Color(0xFFFF8A80);
+    }
     switch (type) {
       case NodeType.source:
         return Colors.greenAccent;

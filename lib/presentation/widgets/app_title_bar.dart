@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -14,9 +15,11 @@ class AppTitleBar extends ConsumerWidget {
     final windowManagerService = ref.read(windowManagerServiceProvider);
     return GestureDetector(
       behavior: HitTestBehavior.opaque,
-      onPanStart: (details) async {
-        await windowManagerService.startDragging();
-      },
+      onPanStart: kIsWeb
+          ? null
+          : (details) async {
+              await windowManagerService.startDragging();
+            },
       child: SizedBox(
         width: double.infinity,
         height: 40,
@@ -35,25 +38,27 @@ class AppTitleBar extends ConsumerWidget {
                 style: Theme.of(context).textTheme.bodyLarge
                     ?.copyWith(color: Colors.blueAccent),
               ),
-              Spacer(),
-              Row(
-                children: List.generate(3, (index) {
-                  return Center(
-                    child: IconButton(
-                      icon: _calculateIcon(index),
-                      color: _calculateColor(index),
-                      onPressed: () async =>
-                          _calculateAction(index, windowManagerService),
-                      style: ButtonStyle(
-                        backgroundColor: WidgetStatePropertyAll(
-                          Colors.transparent,
+              if (!kIsWeb) ...[
+                Spacer(),
+                Row(
+                  children: List.generate(3, (index) {
+                    return Center(
+                      child: IconButton(
+                        icon: _calculateIcon(index),
+                        color: _calculateColor(index),
+                        onPressed: () async =>
+                            _calculateAction(index, windowManagerService),
+                        style: ButtonStyle(
+                          backgroundColor: WidgetStatePropertyAll(
+                            Colors.transparent,
+                          ),
+                          side: WidgetStatePropertyAll(BorderSide.none),
                         ),
-                        side: WidgetStatePropertyAll(BorderSide.none),
                       ),
-                    ),
-                  );
-                }),
-              ),
+                    );
+                  }),
+                ),
+              ],
             ],
           ),
         ),

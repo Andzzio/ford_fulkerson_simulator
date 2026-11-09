@@ -159,7 +159,7 @@ class GraphStateNotifier extends Notifier<GraphState> {
 
   void updateNodeType(NodeType nodeType) {
     NodeUi? current = state.selectedNode;
-    if (current == null) return;
+    if (current == null || current.isVirtual) return;
     current.core = NodeCore(
       id: current.id,
       label: current.label,

@@ -1,6 +1,6 @@
 use std::collections::HashSet;
 
-use rand::random_range;
+use rand::Rng;
 
 use crate::api::entities::{
     edge_core::EdgeCore,
@@ -59,6 +59,7 @@ pub struct GraphCore {
 impl GraphCore {
     #[flutter_rust_bridge::frb(sync)]
     pub fn generate_random(n: usize) -> Self {
+        let mut rng = rand::thread_rng();
         let mut nodes_random = Vec::with_capacity(n);
         let mut edges_random: Vec<EdgeCore> = Vec::new();
         for i in 0..n {
@@ -123,14 +124,14 @@ impl GraphCore {
                 let num_edges = if max_edges <= 1 {
                     max_edges
                 } else {
-                    random_range(1..=max_edges)
+                    rng.gen_range(1..=max_edges)
                 };
 
                 let mut picked: HashSet<usize> = HashSet::new();
                 let mut attempts = 0;
                 while picked.len() < num_edges && attempts < 20 {
                     attempts += 1;
-                    let target_idx = random_range(0..candidates.len());
+                    let target_idx = rng.gen_range(0..candidates.len());
                     let v = candidates[target_idx];
                     if !picked.contains(&v) && !edge_set.contains(&(u, v)) {
                         picked.insert(v);
@@ -139,10 +140,31 @@ impl GraphCore {
                             id: format!("{}->{}", u, v),
                             from: u.to_string(),
                             to: v.to_string(),
-                            capacity: random_range(1..=16),
+                            capacity: rng.gen_range(1..=16),
                             flow: 0,
                         });
                     }
+                }
+            }
+
+            for (j, &v) in next_stage.iter().enumerate() {
+                let has_incoming = current_stage.iter().any(|&u| edge_set.contains(&(u, v)));
+                if !has_incoming {
+                    let source_idx = if m_next <= 1 {
+                        m_curr / 2
+                    } else {
+                        let pos = j as f64 / (m_next - 1) as f64;
+                        (pos * (m_curr - 1) as f64).round() as usize
+                    };
+                    let u = current_stage[source_idx];
+                    edge_set.insert((u, v));
+                    edges_random.push(EdgeCore {
+                        id: format!("{}->{}", u, v),
+                        from: u.to_string(),
+                        to: v.to_string(),
+                        capacity: rng.gen_range(1..=16),
+                        flow: 0,
+                    });
                 }
             }
         }

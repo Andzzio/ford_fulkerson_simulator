@@ -44,7 +44,7 @@ class EdgesPainter extends CustomPainter {
     for (final EdgeUi edge in edges) {
       final edgeColor = edgeColors[edge.core.id] ?? AppTheme.darkBorder;
       final flow = currentFlows[edge.core.id] ?? edge.core.flow;
-      const strokeWidth = 4.0;
+      final strokeWidth = edge.isVirtual ? 3.0 : 4.0;
 
       final paint = Paint()
         ..color = edgeColor
@@ -56,8 +56,9 @@ class EdgesPainter extends CustomPainter {
         ..strokeCap = StrokeCap.round
         ..strokeJoin = StrokeJoin.round;
 
+      final capacityText = edge.isVirtual ? '∞' : '${edge.core.capacity}';
       final textSpan = TextSpan(
-        text: '(${edge.core.capacity},$flow)',
+        text: '($capacityText,$flow)',
         style: GoogleFonts.getFont(
           AppTheme.mainFont,
           fontWeight: FontWeight.w600,
@@ -70,7 +71,11 @@ class EdgesPainter extends CustomPainter {
         textDirection: TextDirection.ltr,
         textAlign: TextAlign.center,
       )..layout();
-      canvas.drawLine(edge.fromPosition, edge.toPosition, paint);
+      if (edge.isVirtual) {
+        _drawDashedLine(canvas, edge.fromPosition, edge.toPosition, paint);
+      } else {
+        canvas.drawLine(edge.fromPosition, edge.toPosition, paint);
+      }
       final dx = edge.toPosition.dx - edge.fromPosition.dx;
       final dy = edge.toPosition.dy - edge.fromPosition.dy;
       final angle = atan2(dy, dx);
@@ -91,6 +96,27 @@ class EdgesPainter extends CustomPainter {
         Offset(-textPainter.width / 2, -textPainter.height - textSpacing),
       );
       canvas.restore();
+    }
+  }
+
+  void _drawDashedLine(Canvas canvas, Offset p1, Offset p2, Paint paint) {
+    const dashWidth = 8.0;
+    const dashSpace = 6.0;
+    final dx = p2.dx - p1.dx;
+    final dy = p2.dy - p1.dy;
+    final distance = sqrt(dx * dx + dy * dy);
+    if (distance == 0) return;
+    final ux = dx / distance;
+    final uy = dy / distance;
+    var start = 0.0;
+    while (start < distance) {
+      final end = min(start + dashWidth, distance);
+      canvas.drawLine(
+        Offset(p1.dx + ux * start, p1.dy + uy * start),
+        Offset(p1.dx + ux * end, p1.dy + uy * end),
+        paint,
+      );
+      start += dashWidth + dashSpace;
     }
   }
 
